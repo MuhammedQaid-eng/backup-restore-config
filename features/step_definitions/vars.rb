@@ -1,0 +1,1 @@
+BUCKETNAME = "testcronbackbuk"
