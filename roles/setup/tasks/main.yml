@@ -1,0 +1,88 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes
+  tags:
+    - setup
+
+- name: Check if Pip is installed
+  command: bash -c "pip --version | grep pip"
+  register: pip_installed
+  ignore_errors: True
+  tags:
+    - setup
+
+- name: Install Pip if its uninstalled
+  apt: name=python-pip state=latest force=yes
+  when: pip_installed|failed
+  tags:
+    - setup
+
+- name: Check if Boto is installed
+  command: bash -c "pip list | grep 'boto '"
+  register: boto_installed
+  ignore_errors: True
+  tags:
+    - setup
+
+- name: Install Boto if its uninstalled
+  pip: name=boto state=latest
+  when: boto_installed|failed
+  tags:
+    - setup
+
+- name: Check if AWS CLI is installed
+  command: bash -c "which aws"
+  register: aws_cli_installed
+  ignore_errors: True
+  tags:
+    - setup
+
+- name: Install AWS CLI if its uninstalled
+  pip: name=awscli state=latest
+  when: aws_cli_installed|failed
+  tags:
+    - setup
+
+- name: Create .aws directory under user home for AWS CLI config 
+  file:  
+    path: "{{ ansible_env.HOME }}/.aws"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: 0755
+  when: aws_cli_installed|failed
+  tags:
+    - setup
+
+- name: Copy AWS CLI config and credentials to machine using templates
+  template:  
+    src: "roles/setup/templates/{{ item }}.j2"
+    dest: "{{ ansible_env.HOME }}/.aws/{{ item }}"
+    owner: "{{ ansible_user }}"
+    mode: 0644
+  with_items:
+    - config
+    - credentials
+  tags:
+    - setup
+
+- name: Check if automysqlbackup, python-mysqldb and mysql-workbench are installed
+  command: bash -c "dpkg --get-selections | grep {{ item }}"
+  ignore_errors: True
+  with_items:
+    - automysqlbackup
+    - rsync
+  register: dependencies_installed
+  tags:
+    - setup
+
+- name: Install automysqlbackup, python-mysqldb and mysql-workbench if uninstalled
+  apt: name={{ item }} state=present force=yes
+  with_items:
+    - automysqlbackup
+    - python-mysqldb
+    - mysql-workbench
+  when: dependencies_installed|failed
+  tags:
+    - setup
+
+

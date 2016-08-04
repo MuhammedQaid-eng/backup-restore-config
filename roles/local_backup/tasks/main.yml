@@ -1,0 +1,30 @@
+---
+- name: Cron job to run automysqlbackup command to create local backups
+  cron:
+    name: Create daily backups
+    minute: "{{ cj_min }}"
+    hour: "{{ cj_hour }}"
+    day: "{{ cj_day }}"
+    month: "{{ cj_month }}"
+    weekday: "{{ cj_weekday }}"
+    job: "/usr/sbin/automysqlbackup"
+    state: present
+  tags:
+    - local_backup
+
+- name: Create test Mysql database
+  mysql_db: name={{ test_db }} state=present
+  tags:
+    - test_db
+
+- name: Restore the local backups to the test database
+  mysql_db: name={{ test_db }} state=import target={{}}
+  tags:
+    - restore_db
+
+- name: Compare the databases
+  command: bash -c "mysqldbcompare --server1=root@localhost --server2=root@localhost {{ db_name }}:{{ test_db }} --changes-for=server2 -a --difftype=sql"
+  tags:
+    - compare_dbs
+
+

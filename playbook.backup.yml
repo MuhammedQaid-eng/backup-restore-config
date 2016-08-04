@@ -1,0 +1,11 @@
+---
+- hosts: all
+  user: "{{ user }}"
+  become: yes
+  become_method: sudo
+  vars_files:
+    - "vars/vars.yml"
+  roles:
+    # - setup
+    - local_backup
+    # - remote_backup
