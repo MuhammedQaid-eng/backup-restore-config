@@ -1,0 +1,15 @@
+user: VM USER
+aws_access_key: "AWS ACCESS KEY"
+aws_secret_key: "AWS SECRET KEY"
+region: AWS REGION
+min: "CRON JOB MINUTE"
+hour: "CRON JOB HOUR"
+day: "CRON JOB DAY"
+month: "CRON JOB MONTH"
+weekday: "CRON JOB WEEKDAY"
+s3_bucket_name: S3 BUCKET NAME
+db_name: DATABASE NAME #  i.e. database to be backed up
+test_db_username: DATABASE USERNAME
+test_db_password: DATABASE PASSWORD
+test_db: TEST DATABASE NAME # can be any name
+s3_bucket_policy: S3 BUCKET POLICY
