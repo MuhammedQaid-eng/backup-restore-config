@@ -2,35 +2,26 @@ Feature: Setup Local and Remote Backups
 
 	Scenario: Install dependencies
 		When I install dependencies
-		Then it should be successfull
+		Then it should be successful
 
-	Scenario: Set up Local Backup
-		When I set up Local Backup
-		Then it should be successfull
-
-	Scenario: Create test Mysql database
-		When I create test Mysql database
-		Then it should be successfull
-		And it should
-
-	Scenario: Restore the local backups to the test database
-		When I restore the local backups to the test database
-		Then it should be successfull
-		And it should
-
-Compare the databases
-
-	Scenario: Restore the local backups to the test database
-		When I restore the local backups to the test database
-		Then it should be successfull
-		And it should
-
+	Scenario: Configure automysqlbackup
+		When I configure automysqlbackup
+		Then it should be successful
 
 	Scenario: Create S3 Bucket
 		When I create S3 Bucket
-		Then it should be successfull
+		Then it should be successful
 		And the bucket should exists on AWS
 
-	Scenario: Set up Remote Backup
-		When I set up Remote Backup
-		Then it should be successfull
+	Scenario: Encrypt the S3 bucket with a bucket policy
+		When I encrypt the S3 bucket with a bucket policy
+		Then it should be successful
+
+	Scenario: Copy backup bash script to remote server
+		When I copy backup bash script to remote server
+		Then it should be successful
+		And the script should exists on the remote server
+
+	Scenario: Run cron job to set up recurring local and remote backups
+		When I run cron job to set up recurring local and remote backups
+		Then it should be successful
