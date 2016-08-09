@@ -1,0 +1,67 @@
+---
+- name: Cron job to run automysqlbackup command to create local backups
+  command: bash -c "automysqlbackup"
+  tags:
+    - automysqlbackup_config
+
+- name: Modify automysqlbackup config file to allow database comparisons
+  lineinfile: 
+    dest: /etc/default/automysqlbackup
+    state: present
+    regexp: "^CREATE_DATABASE=yes$" 
+    line: "CREATE_DATABASE=no"
+    backrefs: yes
+  tags:
+    - automysqlbackup_config
+
+- name: Check if S3 bucket exists
+  command: bash -c "aws s3 ls | grep {{ s3_bucket_name }}"
+  ignore_errors: True
+  register: bucket_exists
+  tags:
+    - create_s3
+
+- name: Create an S3 bucket
+  s3: 
+    bucket: "{{ s3_bucket_name }}"
+    mode: create
+    permission: private
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: bucket_exists|failed
+  tags:
+    - create_s3
+
+- name: Encrypt the S3 bucket with a bucket policy
+  s3_bucket:
+    name: "{{ s3_bucket_name }}"
+    policy: "{{ s3_bucket_policy }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  tags:
+    - encrypt_s3
+
+- name: Get AWS path
+  command: bash -c "which aws"
+  register: aws_path
+  tags:
+    - copy_bash
+
+- name: Copy backup bash script to remote server
+  template: src=bash.sh dest={{ ansible_env.PWD }} mode=0774
+  tags:
+    - copy_bash
+
+- name: Run cron job to set up recurring remote backups
+  cron:
+    name: "Create remote backups"
+    minute: "{{ min }}"
+    hour: "{{ hour }}"
+    day: "{{ day }}"
+    month: "{{ month }}"
+    weekday: "{{ weekday }}"
+    job: "{{ansible_env.PWD}}/bash.sh"
+    state: present
+  tags:
+    - cron_job

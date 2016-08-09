@@ -65,24 +65,26 @@
   tags:
     - setup
 
-- name: Check if automysqlbackup, python-mysqldb and mysql-workbench are installed
+- name: Check if automysqlbackup, python-mysqldb, mysql-workbench and gzip are installed
   command: bash -c "dpkg --get-selections | grep {{ item }}"
   ignore_errors: True
   with_items:
     - automysqlbackup
-    - rsync
+    - python-mysqldb
+    - mysql-workbench
+    - gzip
   register: dependencies_installed
   tags:
     - setup
 
-- name: Install automysqlbackup, python-mysqldb and mysql-workbench if uninstalled
+- name: Install automysqlbackup, python-mysqldb, mysql-workbench and gzip if uninstalled
   apt: name={{ item }} state=present force=yes
   with_items:
     - automysqlbackup
     - python-mysqldb
     - mysql-workbench
+    - gzip
   when: dependencies_installed|failed
   tags:
     - setup
-
 

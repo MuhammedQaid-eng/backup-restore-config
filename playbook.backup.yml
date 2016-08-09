@@ -6,6 +6,5 @@
   vars_files:
     - "vars/vars.yml"
   roles:
-    # - setup
-    - local_backup
-    # - remote_backup
+    - setup
+    - backup
