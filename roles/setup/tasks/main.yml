@@ -43,27 +43,27 @@
   tags:
     - setup
 
-# - name: Create .aws directory under user home for AWS CLI config 
-#   file:  
-#     path: "{{ ansible_env.HOME }}/.aws"
-#     state: directory
-#     owner: "{{ ansible_user }}"
-#     mode: 0755
-#   when: aws_cli_installed|failed
-#   tags:
-#     - setup
+- name: Create .aws directory under user home for AWS CLI config 
+  file:  
+    path: "{{ ansible_env.HOME }}/.aws"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: 0755
+  when: aws_cli_installed|failed
+  tags:
+    - setup
 
-# - name: Copy AWS CLI config and credentials to machine using templates
-#   template:  
-#     src: "roles/setup/templates/{{ item }}.j2"
-#     dest: "{{ ansible_env.HOME }}/.aws/{{ item }}"
-#     owner: "{{ ansible_user }}"
-#     mode: 0644
-#   with_items:
-#     - config
-#     - credentials
-#   tags:
-#     - setup
+- name: Copy AWS CLI config and credentials to machine using templates
+  template:  
+    src: "roles/setup/templates/{{ item }}.j2"
+    dest: "{{ ansible_env.HOME }}/.aws/{{ item }}"
+    owner: "{{ ansible_user }}"
+    mode: 0644
+  with_items:
+    - config
+    - credentials
+  tags:
+    - setup
 
 - name: Check if automysqlbackup, python-mysqldb, mysql-workbench and gzip are installed
   command: bash -c "dpkg --get-selections | grep {{ item }}"
